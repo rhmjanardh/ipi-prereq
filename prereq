@@ -10,7 +10,7 @@ sudo useradd $user
 sudo passwd $user
 
 echo "kni ALL=(root) NOPASSWD:ALL" | tee -a /etc/sudoers.d/kni
-chmod 0440 /etc/sudoers.d/kni
+sudo chmod 0440 /etc/sudoers.d/kni
 
 sudo mkdir -p $KPATH/.ssh
 su - kni -c "ssh-keygen -t ed25519 -f /home/kni/.ssh/id_rsa -N ''"
@@ -34,5 +34,5 @@ sudo virsh pool-autostart default
 
 sudo nmcli con show
 
-scp $KPATH/.ssh/id_rsa.pub root@$infra:~/.ssh/authorized_keys
-scp -i $KPATH/.ssh/id_rsa root@$infra:~/Documents/pull-secret.txt $KPATH/.
+sudo scp $KPATH/.ssh/id_rsa.pub root@$infra:~/.ssh/authorized_keys
+sudo scp -i $KPATH/.ssh/id_rsa root@$infra:~/Documents/pull-secret.txt $KPATH/.
