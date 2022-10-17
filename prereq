@@ -1,0 +1,38 @@
+#!/bin/bash -x
+echo "kni User Creation"
+
+rhel_ver=$1
+readonly user=kni
+readonly KPATH=/home/$user
+readonly infra="192.168.18.11"
+
+useradd $user
+passwd $user
+
+echo "kni ALL=(root) NOPASSWD:ALL" | tee -a /etc/sudoers.d/kni
+chmod 0440 /etc/sudoers.d/kni
+
+sudo mkdir -p $KPATH/.ssh
+su - kni -c "ssh-keygen -t ed25519 -f /home/kni/.ssh/id_rsa -N ''"
+su - kni
+
+sudo subscription-manager repos --enable=rhel-$rhel_ver-for-x86_64-appstream-rpms --enable=rhel-$rhel_ver-for-x86_64-baseos-rpms
+
+sudo dnf install -y libvirt qemu-kvm mkisofs python3-devel jq ipmitool
+
+sudo usermod --append --groups libvirt $user
+
+sudo systemctl start firewalld
+sudo firewall-cmd --zone=public --add-service=http --permanent
+sudo firewall-cmd --reload
+
+sudo systemctl enable libvirtd --now
+
+sudo virsh pool-define-as --name default --type dir --target /var/lib/libvirt/images
+sudo virsh pool-start default
+sudo virsh pool-autostart default
+
+sudo nmcli con show
+
+scp $KPATH/.ssh/id_rsa.pub root@$infra:~/.ssh/authorized_keys
+scp -i $KPATH/.ssh/id_rsa root@$infra:~/Documents/pull-secret.txt $KPATH/.
