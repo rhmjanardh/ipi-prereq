@@ -6,8 +6,8 @@ readonly user=kni
 readonly KPATH=/home/$user
 readonly infra="192.168.18.11"
 
-useradd $user
-passwd $user
+sudo useradd $user
+sudo passwd $user
 
 echo "kni ALL=(root) NOPASSWD:ALL" | tee -a /etc/sudoers.d/kni
 chmod 0440 /etc/sudoers.d/kni
